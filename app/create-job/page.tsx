@@ -42,6 +42,22 @@ const [jobItems, setJobItems] = useState<any[]>([]);
 const [rate, setRate] = useState("");
 
 
+// const [ply, setPly] = useState("");
+
+const [top, setTop] = useState("");
+const [balance, setBalance] = useState("");
+const [bottom, setBottom] = useState("");
+
+const [flutter, setFlutter] = useState("");
+
+const [topWeight, setTopWeight] = useState("");
+const [balanceWeight, setBalanceWeight] = useState("");
+const [bottomWeight, setBottomWeight] = useState("");
+const [totalWeight, setTotalWeight] = useState("");
+// const [boardSize, setBoardSize] = useState("");
+
+
+
 
 
 
@@ -81,6 +97,9 @@ const [ply, setPly] = useState("");
 const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
 const [operator, setOperator] = useState("");
+
+const [cutting, setCutting] = useState(0);
+const [reel, setReel] = useState(0);
 
 
 
@@ -450,37 +469,117 @@ if (
 
 
 
-  
-  
+  const bal = Number(balance);
 
-  
+  const flute = bal * 0.4;
 
-   
+  let total = 0;
+
+  if (ply === "3") {
+
+    total =
+      bal +
+      flute;
+
+  }
+
+  else if (ply === "5") {
+
+    total =
+      bal + bal + bal +
+      flute + flute;
+
+  }
+
+  else if (ply === "7") {
+
+    total =
+      bal + bal + bal + bal + bal +
+      flute + flute + flute;
+
+  }
+
+  else if (ply === "9") {
+
+    total =
+      bal + bal + bal + bal + bal + bal + bal +
+      flute + flute + flute + flute;
+
+  }
+
+  setFlutter(String(total));
 
 
-  
-
- 
-   
+}, [length, breadth, height, measure, joint, ups,boxType,quantity, ply]);
 
 
+useEffect(() => {
+  const bal = Number(balance);
+
+  if (!bal || !ply) {
+    setFlutter("");
+    return;
+  }
+
+  const flute = bal * 0.4;
+
+  let total = 0;
+
+  if (ply === "3") {
+    total = bal + flute;
+  } 
+  else if (ply === "5") {
+    total = bal * 3 + flute * 2;
+  } 
+  else if (ply === "7") {
+    total = bal * 5 + flute * 3;
+  } 
+  else if (ply === "9") {
+    total = bal * 7 + flute * 4;
+  }
+
+  setFlutter(String(total.toFixed(2)));
+
+}, [balance, ply]);
+
+useEffect(() => {
+  const topGsm = Number(top);
+  const balanceGsm = Number(balance);
+  const bottomGsm = Number(bottom);
+
+  const cuttingNum = Number(cuttingSize.replace(/[^0-9.]/g, ""));
+  const reelNum = Number(reelSize.replace(/[^0-9.]/g, ""));
+
+  if (
+    !cuttingNum ||
+    !reelNum ||
+    !topGsm ||
+    !balanceGsm ||
+    !bottomGsm
+  ) {
+    setTopWeight("");
+    setBalanceWeight("");
+    setBottomWeight("");
+    setTotalWeight("");
+    return;
+  }
+
+  const balanceFlute = balanceGsm * 0.4;
+
+  const topWt = (cuttingNum * reelNum * topGsm) / 1550;
+  const balanceWt = (cuttingNum * reelNum * balanceFlute) / 1550;
+  const bottomWt = (cuttingNum * reelNum * bottomGsm) / 1550;
+
+  setTopWeight(topWt.toFixed(3));
+  setBalanceWeight(balanceWt.toFixed(3));
+  setBottomWeight(bottomWt.toFixed(3));
+  setTotalWeight((topWt + balanceWt + bottomWt).toFixed(3));
+
+}, [top, balance, bottom, cuttingSize, reelSize]);
 
 
 
 
-
-
-
-
-
-
-
-
-
-
- 
-
-}, [length, breadth, height, measure, joint, ups,boxType,quantity, ply, joint, ups]);
 
 
 
@@ -782,8 +881,10 @@ const handleRowSelect = (item: any, index: number) => {
 
 
   return (
+
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-6xl mx-auto bg-white shadow-xl rounded-xl p-8">
+      
 
         <h1 className="text-3xl font-bold mb-8 text-gray-800">
           Job Card
@@ -1206,7 +1307,83 @@ const handleRowSelect = (item: any, index: number) => {
 
          
 
-        
+
+
+
+
+         <div className="border-2 border-gray-400 rounded-xl p-6 bg-gray-50">
+
+  <label className="block mb-5 text-xl font-bold text-black">
+    GSM
+  </label>
+
+  <div className="flex flex-wrap gap-6">
+
+    {/* Top */}
+    <div className="flex-1 min-w-[180px]">
+      <label className="block mb-2 font-semibold text-black">
+        Top
+      </label>
+
+      <input
+        type="number"
+        placeholder="Top GSM"
+        className="w-full border-2 border-gray-300 p-3 rounded-lg text-black bg-white"
+        value={top}
+  onChange={(e) => setTop(e.target.value)}
+      />
+    </div>
+
+    {/* Bottom */}
+    <div className="flex-1 min-w-[180px]">
+      <label className="block mb-2 font-semibold text-black">
+        Balance
+      </label>
+
+      <input
+        type="number"
+        placeholder="Bottom GSM"
+        className="w-full border-2 border-gray-300 p-3 rounded-lg text-black bg-white"
+  
+
+
+
+    value={balance}
+  onChange={(e) => setBalance(e.target.value)}
+      />
+    </div>
+
+    {/* Flutter */}
+    <div className="flex-1 min-w-[180px]">
+      <label className="block mb-2 font-semibold text-black">
+        Bottom
+      </label>
+
+      <input
+        type="number"
+        placeholder="Flutter GSM"
+        className="w-full border-2 border-gray-300 p-3 rounded-lg text-black bg-white"
+          value={bottom}
+  onChange={(e) => setBottom(e.target.value)}
+      />
+    </div>
+
+    {/* Base */}
+    <div className="flex-1 min-w-[180px]">
+      <label className="block mb-2 font-semibold text-black">
+        Flutter
+      </label>
+
+      <input
+        type="number"
+        placeholder="Base GSM"
+        className="w-full border-2 border-gray-300 p-3 rounded-lg text-black bg-white"
+  value={flutter}
+  readOnly
+      />
+    </div>
+
+     
           {/* Remarks */}
           <div className="md:col-span-2">
             <label className="block mb-2 text-lg font-bold text-black">
@@ -1221,6 +1398,81 @@ const handleRowSelect = (item: any, index: number) => {
   onChange={(e) => setRemarks(e.target.value)}
             />
           </div>
+
+  </div>
+</div>
+
+{/* Weight Section */}
+
+<div className="border-2 border-gray-400 rounded-xl p-6 bg-gray-50">
+
+  <label className="block mb-5 text-xl font-bold text-black">
+    Weight
+  </label>
+
+  <div className="flex flex-wrap gap-6">
+
+    {/* Top Weight */}
+    <div className="flex-1 min-w-[180px]">
+      <label className="block mb-2 font-semibold text-black">
+        Top Weight
+      </label>
+
+      <input
+        type="text"
+        className="w-full border-2 border-gray-300 p-3 rounded-lg text-black bg-white"
+        value={topWeight}
+        readOnly
+      />
+    </div>
+
+    {/* Balance Weight */}
+    <div className="flex-1 min-w-[180px]">
+      <label className="block mb-2 font-semibold text-black">
+        Balance Weight
+      </label>
+
+      <input
+        type="text"
+        className="w-full border-2 border-gray-300 p-3 rounded-lg text-black bg-white"
+        value={balanceWeight}
+        readOnly
+      />
+    </div>
+
+    {/* Bottom Weight */}
+    <div className="flex-1 min-w-[180px]">
+      <label className="block mb-2 font-semibold text-black">
+        Bottom Weight
+      </label>
+
+      <input
+        type="text"
+        className="w-full border-2 border-gray-300 p-3 rounded-lg text-black bg-white"
+        value={bottomWeight}
+        readOnly
+      />
+    </div>
+
+    {/* Total Weight */}
+    <div className="flex-1 min-w-[180px]">
+      <label className="block mb-2 font-semibold text-black">
+        Total Weight
+      </label>
+
+      <input
+        type="text"
+        className="w-full border-2 border-gray-300 p-3 rounded-lg text-black bg-white"
+        value={totalWeight}
+        readOnly
+      />
+    </div>
+
+  </div>
+
+</div>
+        
+       
 
 
 
@@ -1545,7 +1797,7 @@ const handleRowSelect = (item: any, index: number) => {
     ply,
     quantity,
     // boardSize: `${cuttingSize} x ${reelSize}`,
-    boardSize: `${cuttingSize.replace(" inch", "")} x ${reelSize.replace(" inch", "")}`,
+    boardSize: `${cuttingSize.replace(/[^0-9.]/g, "")} x ${reelSize.replace(/[^0-9.]/g, "")}`,
     noOfBoard,
     sheet,
     papper,
@@ -1682,15 +1934,15 @@ const handleRowSelect = (item: any, index: number) => {
 
   
 
-  <Link href="/weight-calc">
+  {/* <Link href="/weight-calc">
   <button
     className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-3 rounded-lg shadow-md transition w-full cursor-pointer"
   >
     Weight Calc
   </button>
-</Link>
+</Link> */}
 
-  <button 
+  {/* <button 
       type="button"
 
     className="bg-green-700 hover:bg-green-800 text-white font-semibold py-3 rounded-lg shadow-md transition"
@@ -1789,18 +2041,18 @@ setPapper("");
     
   >
     Save
-  </button>
+  </button> */}
 
  
 
-  <Link href="/create-customer">
+  {/* <Link href="/create-customer">
     <button
       // className="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 rounded-lg shadow-md transition cursor-pointer"
       className={`${buttonStyle} bg-purple-700 hover:bg-purple-800 w-full`}
     >
       Create Customer
     </button>
-  </Link>
+  </Link> */}
 
 </div>
 {showBox && (
@@ -1883,6 +2135,114 @@ setPapper("");
 
 
   <div className="flex justify-end gap-4 mt-6">
+
+     <button 
+      type="button"
+
+    // className="bg-green-700 hover:bg-green-800 text-white font-semibold py-3 rounded-lg shadow-md transition"
+        className="bg-green-700 hover:bg-green-800 text-white font-semibold px-10 py-3 rounded-lg shadow-md transition cursor-pointer"
+
+    onClick={async() => {
+
+// console.log("SAVE CLICKED");
+console.log("BEFORE API");
+
+
+         {
+    try {
+        console.log("SAVE CLICKED");
+
+      await createOrder({
+        customerName,
+        length,
+        breadth,
+        height,
+
+        remarks,
+      });
+      console.log("AFTER API");
+      alert("Customer Saved Successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("Save Failed!");
+    }
+  }
+
+    const year = new Date().getFullYear();
+
+    // get current number
+    let currentNumber = parseInt(orderNo.split("-")[2]);
+
+    // increment
+    let nextNumber = currentNumber + 1;
+
+    // reset after 5000
+    if (nextNumber > 5000) {
+      nextNumber = 1;
+    }
+
+    const nextOrderNo =
+      `ORD-${year}-${String(nextNumber).padStart(3, "0")}`;
+
+    localStorage.setItem("currentOrderNo", nextOrderNo);
+
+    setOrderNo(nextOrderNo);
+
+    // clear form fields
+setLength("");
+setBreadth("");
+
+setMeasure("");
+setJoint("");
+setUps("");
+
+setCuttingSize("");
+setCustomerName("");
+setPoNumber("");
+
+setQuantity("");
+setBoardSize("");
+
+setRemarks("");
+
+setDeliveryDate("");
+setDeliveryPlace("");
+
+setHeight("");
+setReelSize("");
+
+setCalico("");
+setCalicoRemark("");
+
+setPasteJoint("");
+setPasteRemark("");
+
+setPin("");
+setPinRemark("");
+
+setElastic("");
+setElasticRemark("");
+
+setPrint("");
+setPrintRemark("");
+setBoxType("");
+setPly("");
+setNoOfBoard("");
+setSheet("");
+setPapper("");
+
+
+
+
+
+
+    alert("Saved Successfully!");
+  }}
+ 
+    
+  >
+    Save
+  </button>
 
   <button
     className="bg-green-700 hover:bg-green-800 text-white font-semibold px-10 py-3 rounded-lg shadow-md transition cursor-pointer"
