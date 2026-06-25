@@ -629,7 +629,7 @@ const handlePrint = () => {
   // TOP DETAILS
   // =========================
 
- const pageWidth = doc.internal.pageSize.getWidth();
+const pageWidth = doc.internal.pageSize.getWidth();
 
 doc.setFontSize(18);
 
@@ -640,9 +640,9 @@ doc.setFont("helvetica", "bold"); // 👈 add this
 doc.setFontSize(14);
 
 doc.text(
-  `Order No: ${orderNo}     Order Date: ${new Date().toLocaleDateString("en-IN")}     Sri Venkateshwara Packaging & Co          PO Number: ${poNumber}`,
+  ` Order No: ${orderNo}     Order Date: ${new Date().toLocaleDateString("en-IN")}     Sri Venkateshwara Packaging & Co          PO Number: ${poNumber}`,
   14,
-  12,
+  14,
 );
 
 doc.setFont("helvetica", "normal"); // 👈 reset back to normal after
@@ -651,7 +651,7 @@ doc.setFont("helvetica", "normal"); // 👈 reset back to normal after
 
 // draw line below header
 doc.setLineWidth(0.5);
-doc.line(14, 14, pageWidth -6, 14); // 👈 line right below header
+doc.line(14, 16, pageWidth -6, 16); // 👈 line right below header
 
 // customer details in single line
 doc.setFont("helvetica", "bold");
@@ -663,7 +663,7 @@ doc.setFontSize(11);
 // });
 
 doc.text(
-  `Customer Name: ${customerName}     Delivery Place: ${deliveryPlace}     Delivery Date: ${deliveryDate}`,
+  ` Customer Name: ${customerName}     Delivery Place: ${deliveryPlace}     Delivery Date: ${formattedDate}`,
   14,
   21  // 👈 just below the line
 );
@@ -980,6 +980,14 @@ console.log("boardSize =", boardSize);
 
 console.log("isAddEnabled =", isAddEnabled);
 console.log("typeof isAddEnabled =", typeof isAddEnabled);
+
+
+// const formattedDate = new Date(deliveryDate)
+//   .toLocaleDateString("en-GB");
+
+  const formattedDate = new Date(deliveryDate)
+  .toLocaleDateString("en-GB")
+  .replace(/\//g, "-");
 
   return (
 
