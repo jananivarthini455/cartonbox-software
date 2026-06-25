@@ -9,7 +9,8 @@ import { calculateTubeCarton } from "./tubecarton";
 import { calculateDisplayCarton } from "./displaycarton";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { createOrder } from "../api";
+import { createOrder,getCustomers } from "../api";
+import { wrap } from "module";
 
 const buttonStyle =
   "text-white font-semibold py-3 rounded-lg shadow-md transition cursor-pointer";
@@ -20,6 +21,7 @@ export default function CreateJob() {
   );
 
 
+  // const [selectedCustomer, setSelectedCustomer] = useState("");
     const [showBox, setShowBox] = useState(false);
     const [length, setLength] = useState("");
 const [breadth, setBreadth] = useState("");
@@ -100,13 +102,25 @@ const [operator, setOperator] = useState("");
 
 const [cutting, setCutting] = useState(0);
 const [reel, setReel] = useState(0);
+const [weightRemarks, setWeightRemarks] = useState(""); 
+const [customers, setCustomers] = useState([]);
+const [selectedCustomer, setSelectedCustomer] = useState("");
+
 
 
 
 
 useEffect(() => {
+  const loadCustomers = async () => {
+  try {
+    const data = await getCustomers();
+    setCustomers(data);
+  } catch (error) {
+    console.error(error);
+  }
+};
 
-
+ loadCustomers();
   const currentYear = new Date().getFullYear();
 
   const savedOrder = localStorage.getItem("currentOrderNo");
@@ -564,16 +578,28 @@ useEffect(() => {
     return;
   }
 
-  const balanceFlute = balanceGsm * 0.4;
+  const balanceFlute = (Number(balance) + (balanceGsm * 0.4));
+  console.log(balanceFlute,"balanceFlute")
+  console.log("balance",balance)
 
   const topWt = (cuttingNum * reelNum * topGsm) / 1550;
   const balanceWt = (cuttingNum * reelNum * balanceFlute) / 1550;
+  console.log(balanceWt)
   const bottomWt = (cuttingNum * reelNum * bottomGsm) / 1550;
 
   setTopWeight(topWt.toFixed(3));
   setBalanceWeight(balanceWt.toFixed(3));
   setBottomWeight(bottomWt.toFixed(3));
   setTotalWeight((topWt + balanceWt + bottomWt).toFixed(3));
+
+
+
+
+  setWeightRemarks(
+  `Top GSM  ${topGsm} = ${topWt.toFixed(3)} top weight 
+Balance GSM  ${balanceGsm} = ${balanceWt.toFixed(3)} balance weight 
+Bottom GSM  ${bottomGsm} = ${bottomWt.toFixed(3)} bottom weight `
+);
 
 }, [top, balance, bottom, cuttingSize, reelSize]);
 
@@ -605,18 +631,18 @@ const handlePrint = () => {
 
  const pageWidth = doc.internal.pageSize.getWidth();
 
-doc.setFontSize(20);
+doc.setFontSize(18);
 
 
 
 
 doc.setFont("helvetica", "bold"); // 👈 add this
-doc.setFontSize(12);
+doc.setFontSize(14);
 
 doc.text(
   `Order No: ${orderNo}     Order Date: ${new Date().toLocaleDateString("en-IN")}     Sri Venkateshwara Packaging & Co          PO Number: ${poNumber}`,
   14,
-  12
+  12,
 );
 
 doc.setFont("helvetica", "normal"); // 👈 reset back to normal after
@@ -624,12 +650,17 @@ doc.setFont("helvetica", "normal"); // 👈 reset back to normal after
   
 
 // draw line below header
-doc.setLineWidth(0.3);
-doc.line(14, 15, pageWidth - 14, 15); // 👈 line right below header
+doc.setLineWidth(0.5);
+doc.line(14, 14, pageWidth -6, 14); // 👈 line right below header
 
 // customer details in single line
 doc.setFont("helvetica", "bold");
 doc.setFontSize(11);
+
+// y position increased from 10 to 14 (or 15)
+// doc.text("VENKATESHWARA PACKAGING INDUSTRIES", pageWidth / 2, 14, {
+//   align: "center",
+// });
 
 doc.text(
   `Customer Name: ${customerName}     Delivery Place: ${deliveryPlace}     Delivery Date: ${deliveryDate}`,
@@ -649,15 +680,15 @@ autoTable(doc, {
   startY: 27,
 
   head: [[
-    "S.No",
+    "S.N",
     "L",
     "B",
     "H",
-    "Measure",
+    "Msre",
     "Ply",
     "No Of Box",
     "Board Size",
-    "No Of Board",
+    "No.of.Board",
     "Sheet",
     "Paper",
     "Rate",
@@ -715,10 +746,12 @@ didParseCell: (data) => {
 
   overflow: "linebreak",
   cellPadding: 2,
+     
 
   lineColor: [0, 0, 0], // black border
-  lineWidth: 0.2,       // border thickness
+  lineWidth: 0.5,       // border thickness
 },
+
 
 
 
@@ -731,13 +764,13 @@ didParseCell: (data) => {
     5: { cellWidth: 10 }, // Ply
     6: { cellWidth: 18 }, // No Of Box
     7: { cellWidth: 30}, // Board Size
-    8: { cellWidth: 18 }, // No Of Board
+    8: { cellWidth: 20}, // No Of Board
     9: { cellWidth: 15 }, // Sheet
     10: { cellWidth: 15 }, // Paper
     11: { cellWidth: 12 }, // Rate
 
     // Remark column gets remaining width
-    12: { cellWidth: 80, },
+    12: { cellWidth: 87, },
   },
 });
 
@@ -754,8 +787,8 @@ didParseCell: (data) => {
   const pageHeight = doc.internal.pageSize.getHeight();
 
 
-doc.setLineWidth(0.3);
-doc.rect(14, 8, pageWidth - 28, pageHeight - 16);
+doc.setLineWidth(0.5);
+doc.rect(14, 8, pageWidth - 20, pageHeight - 16);
 
 
 
@@ -788,7 +821,13 @@ autoTable(doc, {
     3: { cellWidth: "auto" },
     4: { cellWidth: "auto" },
   },
-  margin: { left: 14 },
+ margin: { left: 14,right:6 },
+//  margin: { left: 14 },
+//   margin: {
+//   left: 5,
+//   right: 10,
+// },
+tableWidth: "auto",
 });
 
 autoTable(doc, {
@@ -801,7 +840,7 @@ autoTable(doc, {
     fontSize: 10,
     fontStyle: "bold",
     lineColor: [0, 0, 0],
-    lineWidth: 0.3,
+    lineWidth: 0.5,
     cellPadding: 8,
     fillColor: [255, 255, 255],
     // halign: "bottom",
@@ -811,11 +850,11 @@ autoTable(doc, {
     fillColor: [255, 255, 255],
   },
   columnStyles: {
-    0: { cellWidth: "auto" },
-    1: { cellWidth: "auto" },
-    2: { cellWidth: "auto" },
+    0: { cellWidth: "wrap" },
+    1: { cellWidth: "wrap" },
+    2: { cellWidth: "wrap" },
   },
-  margin: { left: 14 },
+  margin: { left: 14,right:6},
 });
 
 
@@ -878,7 +917,69 @@ const handleRowSelect = (item: any, index: number) => {
 
   setBoxType(item.boxType);
 };
+// const isAddEnabled = true;
 
+
+
+
+const isAddEnabled =
+  !!length &&
+  !!breadth &&
+  !!height &&
+  !!boxType &&
+  !!ply &&
+  !!measure &&
+  !!cuttingSize &&
+  !!reelSize &&
+  !!joint &&
+  !!ups &&
+  !!quantity;
+
+
+
+
+//   console.log({
+//   length,
+//   breadth,
+//   height,
+//   boxType,
+//   ply,
+//   measure,
+//   cuttingSize,
+//   reelSize,
+//   joint,
+//   ups,
+//   quantity,
+//   // boardSize,
+//    noOfBoard,
+//   sheet,
+//   papper
+// });
+
+console.log({
+  length: !!length,
+  breadth: !!breadth,
+  height: !!height,
+  boxType: !!boxType,
+  ply: !!ply,
+  measure: !!measure,
+  cuttingSize: !!cuttingSize,
+  reelSize: !!reelSize,
+  joint: !!joint,
+  ups: !!ups,
+  quantity: !!quantity,
+  noOfBoard: !!noOfBoard,
+  sheet: !!sheet,
+  papper: !!papper,
+});
+
+console.log("isAddEnabled", isAddEnabled);
+console.log("boardSize =", boardSize);
+
+
+
+console.log("isAddEnabled =", isAddEnabled);
+console.log("typeof isAddEnabled =", typeof isAddEnabled);
 
   return (
 
@@ -897,15 +998,41 @@ const handleRowSelect = (item: any, index: number) => {
             <label className="block mb-2 text-lg font-bold text-black">
               Customer Name
             </label>
-            <input
-              type="text"
+            <select
+              // type="text"
               className="w-full border-2 border-gray-400 p-3 rounded-lg text-black placeholder-gray-500 bg-white"
-              placeholder="Enter customer name"
-                value={customerName}
-             onChange={(e) => setCustomerName(e.target.value)}
+              // placeholder="Enter customer name"
+                // value={customerName}
+             onChange={(e) => setSelectedCustomer(e.target.value)}
+
+              value={selectedCustomer}
+  // onChange={(e) => setSelectedCustomer(e.target.value)}
+  // className="w-full border-2 border-gray-400 p-3 rounded-lg"
 
 
-            />
+            >
+                {/* <option value="" >Select Customer</option> */}
+                {/* <option key={customers.id} value={customers.id}>
+  {customers.customer_name} - {customers.company_name}
+</option> */}
+ <option value="">Select Customer</option>
+
+ {customers.map((customer: any) => (
+    <option key={customer.id} value={customer.id}>
+    {customer.company_name}
+    </option>
+  ))}
+
+  {/* {customers.map((customer: any) => (
+    <option
+      key={customer.id}
+      value={customer.id}
+    >
+      {customer.customer_name}
+    </option>
+  ))} */}
+  </select>
+
           </div>
 
          
@@ -1017,6 +1144,7 @@ const handleRowSelect = (item: any, index: number) => {
          type="number"
   value={length}
   onChange={(e) => setLength(e.target.value)}
+   required
       />
     </div>
 
@@ -1035,6 +1163,7 @@ const handleRowSelect = (item: any, index: number) => {
 
   value={breadth}
   onChange={(e) => setBreadth(e.target.value)}
+   required
       />
     </div>
 
@@ -1056,6 +1185,7 @@ const handleRowSelect = (item: any, index: number) => {
 
   value={height}
   onChange={(e) => setHeight(e.target.value)}
+   required
       />
     </div>
     <div>
@@ -1067,6 +1197,7 @@ const handleRowSelect = (item: any, index: number) => {
     className="w-36 border-2 border-gray-400 p-2 rounded-lg text-black bg-white cursor-pointer"
       value={ply}
   onChange={(e) => setPly(e.target.value)}
+  required
   >
     <option value="">Ply</option>
     <option value="3">3</option>
@@ -1085,6 +1216,7 @@ const handleRowSelect = (item: any, index: number) => {
       className="w-36 border-2 border-gray-400 p-2 rounded-lg text-black bg-white cursor-pointer"
         value={measure}
   onChange={(e) => setMeasure(e.target.value)}
+  required
     >
       <option value="">Measure</option>
       <option value="cm">CM</option>
@@ -1116,6 +1248,7 @@ const handleRowSelect = (item: any, index: number) => {
 
   value={cuttingSize}
   onChange={(e) => setCuttingSize(e.target.value)}
+  required
   
       />
     </div>
@@ -1130,6 +1263,7 @@ const handleRowSelect = (item: any, index: number) => {
         className="w-40 border-2 border-gray-400 p-3 rounded-lg text-black bg-white cursor-pointer"
           value={joint}
   onChange={(e) => setJoint(e.target.value)}
+  required
       >
         <option value="">Select</option>
         <option value="single">Single</option>
@@ -1165,6 +1299,7 @@ const handleRowSelect = (item: any, index: number) => {
 
   value={reelSize}
   onChange={(e) => setReelSize(e.target.value)}
+  required
       />
     </div>
 
@@ -1178,6 +1313,7 @@ const handleRowSelect = (item: any, index: number) => {
         className="w-40 border-2 border-gray-400 p-3 rounded-lg text-black bg-white cursor-pointer"
         value={ups}
   onChange={(e) => setUps(e.target.value)}
+  required
       >
         <option value="">Select</option>
         <option value="single">Single</option>
@@ -1202,6 +1338,7 @@ const handleRowSelect = (item: any, index: number) => {
               placeholder="Enter quantity"
                 value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
+            required
             />
           </div>
 
@@ -1223,7 +1360,7 @@ const handleRowSelect = (item: any, index: number) => {
                         : ""
                     }
 
-        
+                    required
               
             />
           </div>
@@ -1243,9 +1380,8 @@ const handleRowSelect = (item: any, index: number) => {
               placeholder="Enter number"
                 value={noOfBoard}
              onChange={(e) => setNoOfBoard(e.target.value)}
-               readOnly
-
-
+              
+                required
 
             />
           </div>
@@ -1263,8 +1399,8 @@ const handleRowSelect = (item: any, index: number) => {
 
                value={sheet}
             onChange={(e) => setSheet(e.target.value)}
-              readOnly
-
+              
+              required
             />
           </div>
 
@@ -1280,8 +1416,8 @@ const handleRowSelect = (item: any, index: number) => {
               placeholder="papper"
                value={papper}
             onChange={(e) => setPapper(e.target.value)}
-              readOnly
-
+              
+                    required
             />
           </div>
             <div>
@@ -1392,7 +1528,9 @@ const handleRowSelect = (item: any, index: number) => {
 
             <textarea
               rows={4}
-              className="w-full border-2 border-gray-400 p-3 rounded-lg text-black placeholder-gray-500 bg-white"
+              // className="w-full border-2 border-gray-400 p-3 rounded-lg text-black placeholder-gray-500 bg-white"
+                className="w-[500px] border-2 border-gray-400 p-3 rounded-lg text-black placeholder-gray-500 bg-white"
+
               placeholder="Enter remarks"
                 value={remarks}
   onChange={(e) => setRemarks(e.target.value)}
@@ -1468,6 +1606,25 @@ const handleRowSelect = (item: any, index: number) => {
       />
     </div>
 
+
+
+       {/* Remarks */}
+          <div  className="md:col-span-2">
+            <label className="block mb-2 text-lg font-bold text-black">
+              Remarks
+            </label>
+
+            <textarea
+              rows={4}
+              // className="w-full border-2 border-gray-400 p-3 rounded-lg text-black placeholder-gray-500 bg-white"
+              className="w-[500px] border-2 border-gray-400 p-3 rounded-lg text-black placeholder-gray-500 bg-white"
+
+              placeholder="Enter remarks"
+              value={weightRemarks}
+              onChange={(e) =>  setRemarks(e.target.value)}
+            />
+          </div>
+
   </div>
 
 </div>
@@ -1486,6 +1643,7 @@ const handleRowSelect = (item: any, index: number) => {
 
 
   {/* Calico */}
+
      <div className="w-1/2">
       <label className="block mb-2 text-lg font-bold text-black">
         calico joint
@@ -1495,8 +1653,8 @@ const handleRowSelect = (item: any, index: number) => {
 
        <select
         className="w-40 border-2 border-gray-400 p-3 rounded-lg text-black bg-white cursor-pointer"
-        value={pasteJoint}
-        onChange={(e) => setPasteJoint(e.target.value)}
+        value={calico}
+        onChange={(e) => setCalico(e.target.value)}
       >
         <option value="">Select</option>
         <option value="Yes">Yes</option>
@@ -1506,8 +1664,10 @@ const handleRowSelect = (item: any, index: number) => {
     </div>
 
   {/* joint */}
-   <div>
+   <div className="w-1/2">
+      {/* <label className="block mb-2 text-lg font-bold text-black"> */}
       <label className="block mb-2 text-lg font-bold text-black">
+
         Remark
       </label>
 
@@ -1516,14 +1676,17 @@ const handleRowSelect = (item: any, index: number) => {
 
        <input
         type="text"
-        className="w-full border-2 border-gray-400 p-3 rounded-lg text-black bg-white"
+       
+        className="w-50 border-2 border-gray-400 p-3 rounded-lg text-black bg-white"
+
+
         placeholder=" Enter remark"
 
-        value={pasteRemark}
-        onChange={(e) => setPasteRemark(e.target.value)}
+        value={calicoRemark}
+        onChange={(e) => setCalicoRemark(e.target.value)}
       />
     </div>
-   
+  
 
    
 
@@ -1564,7 +1727,8 @@ const handleRowSelect = (item: any, index: number) => {
     </div>
 
     {/* Joint */}
-    <div>
+    <div >
+      
       <label className="block mb-2 text-lg font-bold text-black">
         Remark
       </label>
@@ -1789,6 +1953,8 @@ const handleRowSelect = (item: any, index: number) => {
   type="button"
   onClick={() => {
 
+
+ 
   const newItem = {
     length,
     breadth,
@@ -1864,7 +2030,14 @@ const handleRowSelect = (item: any, index: number) => {
 
 }}
  
-        className={`${buttonStyle} bg-blue-700  hover:bg-blue-700 hover:bg-blue-800 w-full`}
+       // className={`${buttonStyle} bg-blue-700  hover:bg-blue-700 hover:bg-blue-800 w-full`}
+
+        disabled={!isAddEnabled}
+  className={`px-4 py-2 rounded-lg font-semibold ${
+    isAddEnabled
+      ? "bg-green-600 text-white hover:bg-green-700"
+      : "bg-gray-400 text-gray-700 cursor-not-allowed"
+  }`}
 
 >
   Add
@@ -1922,7 +2095,7 @@ const handleRowSelect = (item: any, index: number) => {
     setPly("");
     setSelectedIndex(null);
 
-    setShowBox(false);
+   // setShowBox(false);
 
     alert("Form Cleared Successfully!");
 
@@ -2151,16 +2324,62 @@ console.log("BEFORE API");
          {
     try {
         console.log("SAVE CLICKED");
+        const payload = {
+  order_id: orderNo,
+  total_amount: 5000,
+  customer_id: 1,
 
-      await createOrder({
-        customerName,
-        length,
-        breadth,
-        height,
+  items: jobItems.map((item) => ({
+    l: Number(item.length),
+    b: Number(item.breadth),
+    h: Number(item.height),
 
-        remarks,
-      });
+    po_number: poNumber,
+
+    box_type: item.boxType,
+
+    ply: Number(item.ply),
+
+    measure: item.measure,
+
+    cutting_size: item.cuttingSize,
+
+    reel_size: item.reelSize,
+
+    joint: item.joint,
+
+    ups: item.ups,
+
+    quantity: Number(item.quantity),
+
+    board_size: item.boardSize,
+
+    no_of_board: Number(item.noOfBoard),
+
+    no_of_sheet: Number(item.sheet),
+
+    no_of_paper: Number(item.papper),
+
+    delivery_date: deliveryDate,
+
+    delivery_place: deliveryPlace,
+  })),
+};
+
+      // await createOrder({
+      //   customerName,
+      //   length,
+      //   breadth,
+      //   height,
+
+      //   remarks,
+      // });
+        await createOrder(payload);
+        console.log("payload",payload);
+
+
       console.log("AFTER API");
+      console.log("job items",jobItems);
       alert("Customer Saved Successfully!");
     } catch (error) {
       console.error(error);
@@ -2204,6 +2423,7 @@ setQuantity("");
 setBoardSize("");
 
 setRemarks("");
+setWeightRemarks("");
 
 setDeliveryDate("");
 setDeliveryPlace("");

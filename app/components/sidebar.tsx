@@ -50,6 +50,12 @@ export default function Sidebar() {
   {collapsed ? "👤" : "Create Customer"}
 </Link>
 
+
+   <Link href="/view-customer" className={linkClass("/view-customer")}>
+      {collapsed ? "📦"  : "View Customer"}
+      </Link>
+
+
         {/* <Link href="/create-job" className={linkClass("/create-job")}>
           Job Card
         </Link> */}
@@ -96,10 +102,14 @@ export default function Sidebar() {
 
 
          <Link href="/stock-management" className={linkClass("/stock-management")}>
-  {collapsed ? "📦"  : "stock Management"}
-  </Link>
+        {collapsed ? "📦"  : "stock Management"}
+        </Link>
 
+      <Link href="/order-tracking" className={linkClass("/order-tracking")}>
+      {collapsed ? "📦"  : "Order Tracking"}
+      </Link>
 
+     
       </div>
     </div>
   );
