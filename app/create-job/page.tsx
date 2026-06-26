@@ -11,6 +11,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { createOrder,getCustomers } from "../api";
 import { wrap } from "module";
+import Select from "react-select";
 
 const buttonStyle =
   "text-white font-semibold py-3 rounded-lg shadow-md transition cursor-pointer";
@@ -586,20 +587,121 @@ useEffect(() => {
   const balanceWt = (cuttingNum * reelNum * balanceFlute) / 1550;
   console.log(balanceWt)
   const bottomWt = (cuttingNum * reelNum * bottomGsm) / 1550;
+  // var totalWeights
+  // if(bottomGsm == balanceGsm)
+  // {
+  //   totalWeights = bottomWeight+balanceWeight;
+  //   console.log('totalweight',totalWeights),
+  //   console.log('bottomweight',bottomWt),
+  //   console.log('balanceweight',balanceWeight)
 
-  setTopWeight(topWt.toFixed(3));
-  setBalanceWeight(balanceWt.toFixed(3));
-  setBottomWeight(bottomWt.toFixed(3));
-  setTotalWeight((topWt + balanceWt + bottomWt).toFixed(3));
+  // }
+
+  // setTopWeight(topWt.toFixed(3));
+  // setBalanceWeight(balanceWt.toFixed(3));
+  // setBottomWeight(bottomWt.toFixed(3));
+  // setTotalWeight((topWt + balanceWt + bottomWt).toFixed(3));
 
 
 
+
+//   setWeightRemarks(
+//   `Top GSM  ${topGsm} = ${topWt.toFixed(3)} top weight 
+// Balance GSM  ${balanceGsm} = ${balanceWt.toFixed(3)} balance weight 
+// Bottom GSM  ${bottomGsm} = ${bottomWt.toFixed(3)} bottom weight `
+// );
+
+
+let finalTopWt = topWt;
+let finalBalanceWt = balanceWt;
+let finalBottomWt = bottomWt;
+
+// Balance & Bottom are same
+// if (balanceGsm === bottomGsm && topGsm !== balanceGsm) {
+//   const total = balanceWt + bottomWt;
+//   finalBalanceWt = total;
+//   finalBottomWt = total;
+// }
+
+
+if (balanceGsm === bottomGsm && topGsm !== balanceGsm) {
+  const total = balanceWt + bottomWt;
+
+  finalBalanceWt = total;
+  finalBottomWt = 0;
+}
+
+// Top & Balance are same
+else if (topGsm === balanceGsm && topGsm !== bottomGsm) {
+  const total = topWt + balanceWt;
+  finalTopWt = total;
+  finalBalanceWt = total;
+}
+
+// Top & Bottom are same
+else if (topGsm === bottomGsm && topGsm !== balanceGsm) {
+
+  const total = topWt + bottomWt;
 
   setWeightRemarks(
-  `Top GSM  ${topGsm} = ${topWt.toFixed(3)} top weight 
-Balance GSM  ${balanceGsm} = ${balanceWt.toFixed(3)} balance weight 
-Bottom GSM  ${bottomGsm} = ${bottomWt.toFixed(3)} bottom weight `
+`Top + Bottom GSM ${topGsm} = ${total.toFixed(3)} weight
+Balance GSM ${balanceGsm} = ${balanceWt.toFixed(3)} weight`
+  );
+
+  setTopWeight(total.toFixed(3));
+  setBalanceWeight(balanceWt.toFixed(3));
+  setBottomWeight("");
+
+  return;
+}
+
+// All three are same
+else if (
+  topGsm === balanceGsm &&
+  balanceGsm === bottomGsm
+) {
+  const total = topWt + balanceWt + bottomWt;
+
+  setWeightRemarks(
+    `Total Weight = ${total.toFixed(3)}`
+  );
+
+  return;
+}
+
+setTopWeight(finalTopWt.toFixed(3));
+setBalanceWeight(finalBalanceWt.toFixed(3));
+setBottomWeight(finalBottomWt.toFixed(3));
+
+setTotalWeight(
+  (topWt + balanceWt + bottomWt).toFixed(3)
 );
+
+// setWeightRemarks(
+// `Top GSM ${topGsm} = ${finalTopWt.toFixed(3)} top weight
+// Balance GSM ${balanceGsm} = ${finalBalanceWt.toFixed(3)} balance weight
+// Bottom GSM ${bottomGsm} = ${finalBottomWt.toFixed(3)} bottom weight`
+// );
+
+
+
+
+
+
+
+
+if (balanceGsm === bottomGsm && topGsm !== balanceGsm) {
+  setWeightRemarks(
+`Top GSM ${topGsm} = ${finalTopWt.toFixed(3)} top weight
+Balance + Bottom GSM ${balanceGsm} = ${finalBalanceWt.toFixed(3)} weight`
+  );
+} else {
+  setWeightRemarks(
+`Top GSM ${topGsm} = ${finalTopWt.toFixed(3)} top weight
+Balance GSM ${balanceGsm} = ${finalBalanceWt.toFixed(3)} balance weight
+Bottom GSM ${bottomGsm} = ${finalBottomWt.toFixed(3)} bottom weight`
+  );
+}
 
 }, [top, balance, bottom, cuttingSize, reelSize]);
 
@@ -856,6 +958,13 @@ autoTable(doc, {
   },
   margin: { left: 14,right:6},
 });
+const weightY = (doc as any).lastAutoTable.finalY + 6;
+
+doc.text(
+  weightRemarks.replace(/\n/g, "   "),
+  20,
+  weightY
+);
 
 
 
@@ -989,6 +1098,13 @@ console.log("typeof isAddEnabled =", typeof isAddEnabled);
   .toLocaleDateString("en-GB")
   .replace(/\//g, "-");
 
+
+
+  const customerOptions = customers.map((customer: any) => ({
+  value: customer.id,
+  label: customer.company_name,
+}));
+
   return (
 
     <div className="min-h-screen bg-gray-100 p-6">
@@ -1006,42 +1122,61 @@ console.log("typeof isAddEnabled =", typeof isAddEnabled);
             <label className="block mb-2 text-lg font-bold text-black">
               Customer Name
             </label>
-            <select
-              // type="text"
-              className="w-full border-2 border-gray-400 p-3 rounded-lg text-black placeholder-gray-500 bg-white"
-              // placeholder="Enter customer name"
-                // value={customerName}
-             onChange={(e) => setSelectedCustomer(e.target.value)}
+            <Select
+    options={customerOptions}
+    placeholder="Search Customer..."
+    isSearchable={true}
+    value={customerOptions.find(
+      (option) => option.value === selectedCustomer
+    )}
+    onChange={(selectedOption) =>
+      setSelectedCustomer(selectedOption?.value || "")
+    }
 
-              value={selectedCustomer}
-  // onChange={(e) => setSelectedCustomer(e.target.value)}
-  // className="w-full border-2 border-gray-400 p-3 rounded-lg"
+      styles={{
+    control: (provided) => ({
+      ...provided,
+      backgroundColor: "white",
+      borderColor: "#9CA3AF",
+      minHeight: "48px",
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: "black",
+    }),
+    input: (provided) => ({
+      ...provided,
+      color: "black",
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: "#6B7280",
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: "white",
+      color: "black",
+      zIndex: 9999,
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused ? "#DBEAFE" : "white",
+      color: "black",
+      cursor: "pointer",
+    }),
+  }}
 
-
-            >
-                {/* <option value="" >Select Customer</option> */}
-                {/* <option key={customers.id} value={customers.id}>
-  {customers.customer_name} - {customers.company_name}
-</option> */}
- <option value="">Select Customer</option>
-
- {customers.map((customer: any) => (
-    <option key={customer.id} value={customer.id}>
-    {customer.company_name}
-    </option>
-  ))}
-
-  {/* {customers.map((customer: any) => (
-    <option
-      key={customer.id}
-      value={customer.id}
-    >
-      {customer.customer_name}
-    </option>
-  ))} */}
-  </select>
+  />
 
           </div>
+
+
+
+
+
+
+
+          
 
          
 

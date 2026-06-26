@@ -107,15 +107,44 @@ export const getCustomers = async () => {
 };
 
 export const getJobCardReport = async () => {
+  const today = new Date().toISOString().split("T")[0];
   const response = await axios.get(
-    "https://margin-herring-commence.ngrok-free.dev/api/orders?customer_id=2&start_date=2006-01-02&end_date=2026-07-21",
+    
+    "https://margin-herring-commence.ngrok-free.dev/api/orders",
      {
+       params: {
+     
+        end_date: today,
+      },
       headers: {
         "ngrok-skip-browser-warning": "true",
       },
     }
   );
   
+
+  return response.data;
+};
+
+
+export const getJobCardReports = async (
+  customerId: string,
+  startDate: string,
+  endDate: string
+) => {
+  const response = await axios.get(
+    "https://margin-herring-commence.ngrok-free.dev/api/orders",
+    {
+      params: {
+        customer_id: customerId,
+        start_date: startDate,
+        end_date: endDate,
+      },
+      headers: {
+        "ngrok-skip-browser-warning": "true",
+      },
+    }
+  );
 
   return response.data;
 };
@@ -130,6 +159,54 @@ export const deleteCustomer = async (id: number) => {
 
   return response.data;
 
+};
+
+
+
+
+
+// export const updateCustomer = async (data: any) => {
+//   try {
+//     const response = await API.put(
+//       "/api/customers",
+//       data,
+//       {
+//         headers: {
+//           "ngrok-skip-browser-warning": "true",
+//         },
+//       }
+//     );
+
+//     return response.data;
+//   } catch (error) {
+//     console.error(error);
+//     throw error;
+//   }
+ 
+// };
+
+
+
+
+
+export const updateCustomer = async (
+  id: number,
+  data: any
+) => {
+  const response = await API.put(
+    "https://margin-herring-commence.ngrok-free.dev/api/customers",
+    {
+      id,
+      ...data,
+    },
+    {
+      headers: {
+        "ngrok-skip-browser-warning": "true",
+      },
+    }
+  );
+
+  return response.data;
 };
 export default API;
 

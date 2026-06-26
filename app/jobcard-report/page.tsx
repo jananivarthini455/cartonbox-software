@@ -6,7 +6,7 @@
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import { useEffect, useState } from "react";
-import { getJobCardReport } from "../api";
+import { getJobCardReport, getJobCardReports } from "../api";
 import * as XLSX from "xlsx";
 
 
@@ -26,6 +26,14 @@ export default function JobCardReport() {
   const [jobCardNumber, setJobCardNumber] = useState("");
   const [filteredData, setFilteredData] = useState<any[]>([]);
   const [rowData, setRowData] = useState<any[]>([]);
+
+  const [customerId, setCustomerId] = useState("");
+const [startDate, setStartDate] = useState("");
+const [endDate, setEndDate] = useState(
+  new Date().toISOString().split("T")[0]
+);
+
+
 useEffect(() => {
   loadJobCards();
 }, []);
@@ -103,18 +111,38 @@ const columnDefs: ColDef<any>[] = [
 
 ];
 
-const handleSearch = () => {
+// const handleSearch = () => {
 
-  if (jobCardNumber === "") {
-    setFilteredData(rowData);
-    return;
+//   if (jobCardNumber === "") {
+//     setFilteredData(rowData);
+//     return;
+//   }
+
+//   const filtered = rowData.filter((item: any) =>
+//     item.orderNo.toLowerCase().includes(jobCardNumber.toLowerCase())
+//   );
+
+//   setFilteredData(filtered);
+// };
+
+
+
+
+const handleSearch = async () => {
+  try {
+    const data = await getJobCardReports(
+      customerId,
+      startDate,
+      endDate
+    );
+
+    console.log(data);
+
+    // map your response here
+    // setRowData(...)
+  } catch (error) {
+    console.error(error);
   }
-
-  const filtered = rowData.filter((item: any) =>
-    item.orderNo.toLowerCase().includes(jobCardNumber.toLowerCase())
-  );
-
-  setFilteredData(filtered);
 };
 
 const exportToExcel = () => {
@@ -151,6 +179,8 @@ const exportToExcel = () => {
             <input
               type="date"
               className="border-2 border-gray-400 p-3 rounded-lg text-black"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
 
@@ -162,6 +192,8 @@ const exportToExcel = () => {
             <input
               type="date"
               className="border-2 border-gray-400 p-3 rounded-lg text-black"
+               value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
             />
           </div>
 
@@ -176,8 +208,10 @@ const exportToExcel = () => {
               type="text"
               placeholder="Enter Job Card Number"
               className="border-2 border-gray-400 p-3 rounded-lg min-w-[250px] text-black"
-              value={jobCardNumber}
-              onChange={(e) => setJobCardNumber(e.target.value)}
+              // value={jobCardNumber}
+              // onChange={(e) => setJobCardNumber(e.target.value)}
+              value={customerId}
+              onChange={(e) => setCustomerId(e.target.value)}
             />
             {/* </select> */}
 

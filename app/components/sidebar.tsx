@@ -46,9 +46,12 @@ export default function Sidebar() {
         <Link href="/create-customer" className={linkClass("/create-customer")}>
           Create Customer
         </Link> */}
-        <Link href="/create-customer" className={linkClass("/create-customer")}>
+        <Link href="/create-customer" onClick={() => {
+    sessionStorage.removeItem("editCustomer");
+  }} className={linkClass("/create-customer")}>
   {collapsed ? "👤" : "Create Customer"}
 </Link>
+
 
 
    <Link href="/view-customer" className={linkClass("/view-customer")}>

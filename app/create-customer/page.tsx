@@ -1,9 +1,10 @@
 "use client";
-import { useState } from "react";
-import { createCustomer,findGstin } from "../api";
+import { useState,useEffect } from "react";
+import { createCustomer,findGstin,updateCustomer } from "../api";
 
 
 export default function CreateCustomer() {
+  const [isEdit, setIsEdit] = useState(false);
   const [customer_name, setName] = useState("");
 const [company_name, setCompanyName] = useState("");
 const [mobile_number, setMobileNumber] = useState("");
@@ -17,9 +18,196 @@ const [tax_category, setTaxCategory] = useState("");
 const [email, setEmail] = useState("");
 const isValidMobile = /^[0-9]{10}$/.test(mobile_number);
 const [gstin, setGstin] = useState("");
+const [customerId, setCustomerId] = useState<number | null>(null);
 
 const isValidEmail =
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+
+//   useEffect(() => {
+//   const data = sessionStorage.getItem("editCustomer");
+
+//   if (data) {
+//     const customer = JSON.parse(data);
+
+//     setIsEdit(true);
+//      setCustomerId(customer.id);
+
+//     setName(customer.customer_name);
+//     setCompanyName(customer.company_name);
+//     setMobileNumber(customer.mobile_number);
+//     setEmail(customer.email);
+//     setAddress(customer.address);
+//     setCustomerType(customer.customer_type);
+//     setCustomerGroup(customer.customer_group);
+//     setTerritory(customer.territory);
+//     setGstin(customer.gstin);
+
+//     // Continue for every field...
+//   }
+// }, []);
+
+// useEffect(() => {
+//   const data = sessionStorage.getItem("editCustomer");
+
+//   if (data) {
+//     // ===== EDIT MODE =====
+//     const customer = JSON.parse(data);
+
+//     setIsEdit(true);
+//     setCustomerId(customer.id);
+
+//     setName(customer.customer_name || "");
+//     setCompanyName(customer.company_name || "");
+//     setMobileNumber(customer.mobile_number || "");
+//     setEmail(customer.email || "");
+//     setAddress(customer.address || "");
+//     setCustomerType(customer.customer_type || "");
+//     setCustomerGroup(customer.customer_group || "");
+//     setTerritory(customer.territory || "");
+//     setTaxCategory(customer.tax_category || "");
+//     setGstCategory(customer.gst_category || "");
+//     setGstin(customer.gstin || "");
+//   } else {
+//     // ===== CREATE MODE =====
+//     setIsEdit(false);
+//     setCustomerId(null);
+
+//     setName("");
+//     setCompanyName("");
+//     setMobileNumber("");
+//     setEmail("");
+//     setAddress("");
+//     setCustomerType("");
+//     setCustomerGroup("");
+//     setTerritory("");
+//     setTaxCategory("");
+//     setGstCategory("");
+//     setGstin("");
+//   }
+// }, []);
+
+
+
+
+
+useEffect(() => {
+  const loadCustomer = () => {
+    const data = sessionStorage.getItem("editCustomer");
+
+    if (data) {
+      const customer = JSON.parse(data);
+
+      setIsEdit(true);
+      setCustomerId(customer.id);
+
+      setName(customer.customer_name || "");
+      setCompanyName(customer.company_name || "");
+      setMobileNumber(customer.mobile_number || "");
+      setEmail(customer.email || "");
+      setAddress(customer.address || "");
+      setCustomerType(customer.customer_type || "");
+      setCustomerGroup(customer.customer_group || "");
+      setTerritory(customer.territory || "");
+      setTaxCategory(customer.tax_category || "");
+      setGstCategory(customer.gst_category || "");
+      setGstin(customer.gstin || "");
+    } else {
+      // Clear everything
+      setIsEdit(false);
+      setCustomerId(null);
+
+      setName("");
+      setCompanyName("");
+      setMobileNumber("");
+      setEmail("");
+      setAddress("");
+      setCustomerType("");
+      setCustomerGroup("");
+      setTerritory("");
+      setTaxCategory("");
+      setGstCategory("");
+      setGstin("");
+    }
+  };
+
+  loadCustomer();
+}, []);
+
+
+
+
+
+// const handleUpdate = async () => {
+//   try {
+//     await updateCustomer(customerId, {
+//       customer_name,
+//       gstin,
+//       customer_type,
+//       gst_category,
+//       territory,
+//       customer_group,
+//       tax_category,
+//       company_name,
+//       mobile_number,
+//       address,
+//       email,
+//     });
+
+//     alert("Customer Updated Successfully");
+//   } catch (error) {
+//     console.error(error);
+//     alert("Update Failed");
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const handleUpdate = async () => {
+  if (!customerId) {
+    alert("Customer ID not found");
+    return;
+  }
+
+ 
+  try {
+    await updateCustomer(customerId, {
+      gstin,
+      customer_name,
+      company_name,
+      email,
+      mobile_number,
+      address,
+      customer_type,
+      gst_category,
+      territory,
+      customer_group,
+      tax_category,
+      is_active: true,
+    });
+
+    alert("Customer Updated Successfully");
+    sessionStorage.removeItem("editCustomer");
+setIsEdit(false);
+setCustomerId(null);
+  } catch (error) {
+    console.error(error);
+    alert("Update Failed");
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-200 p-6 text-black">
@@ -42,14 +230,26 @@ const isValidEmail =
 
     <input
       type="text"
-      className="flex-1 border-2 border-gray-400 p-3 rounded-lg text-black"
+      // className="flex-1 border-2 border-gray-400 p-3 rounded-lg text-black"
+      className={`flex-1 border-2 p-3 rounded-lg text-black ${
+  isEdit ? "bg-gray-200 cursor-not-allowed" : "border-gray-400"
+}`}
       placeholder="Enter GSTIN"
       value={gstin}
       onChange={(e) => setGstin(e.target.value)}
+      readOnly={isEdit}
+
     />
 
     <button
-      className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 cursor-pointer"
+      // className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 cursor-pointer"
+        disabled={isEdit}
+         className={`bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 cursor-pointer ${
+    isEdit
+      ? "bg-gray-400 cursor-not-allowed"
+      : "bg-blue-600 hover:bg-blue-700"
+  }`}
+
 
       onClick={async (e) => {
     e.preventDefault();
@@ -251,7 +451,14 @@ const isValidEmail =
 
         <div className="mt-8 flex gap-4">
 
-          <button className="bg-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-800"
+          <button // className="bg-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-800"
+            disabled={isEdit}
+             className={`bg-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-800 ${
+    isEdit
+      ? "bg-gray-400 cursor-not-allowed"
+      : "bg-green-700 hover:bg-green-800"
+  }`}
+
            onClick={async () => {
     try {
       await createCustomer({
@@ -279,6 +486,23 @@ const isValidEmail =
           >
             Save Customer
           </button>
+
+
+           <button
+    // className="bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800"
+    onClick={handleUpdate}
+
+
+     disabled={!isEdit}
+  className={`bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800 ${
+    !isEdit
+      ? "bg-gray-400 cursor-not-allowed"
+      : "bg-blue-700 hover:bg-blue-800"
+  }`}
+  >
+    Update Customer
+  </button>
+
 
           <button className="bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-800">
             Clear

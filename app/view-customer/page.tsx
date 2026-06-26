@@ -7,8 +7,7 @@ import { getCustomers,deleteCustomer } from "../api";
 
 
 export default function ViewCustomerPage() {
-
-
+  
   const [filteredCustomers, setFilteredCustomers] = useState([]);
 
 const [customerNameFilter, setCustomerNameFilter] = useState("");
@@ -120,6 +119,13 @@ const handleClear = () => {
 };
 
 
+const handleEdit = (customer: any) => {
+  sessionStorage.setItem("editCustomer", JSON.stringify(customer));
+  // sessionStorage.removeItem("editCustomer");
+  router.push("/create-customer");
+};
+
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
 
@@ -133,7 +139,11 @@ const handleClear = () => {
           </h1>
 
           <button className="bg-green-600 text-white px-5 py-3 rounded-lg hover:bg-green-700"
-             onClick={() => router.push("/create-customer")}
+             onClick={() => {
+               // sessionStorage.removeItem("editCustomer");
+                sessionStorage.removeItem("editCustomer");
+                router.refresh();
+              router.push("/create-customer")}}
           >
             + Create Customer
           </button>
@@ -322,17 +332,20 @@ const handleClear = () => {
 
     <button
       className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-      onClick={() => handleEdit(customer.id)}
+      // onClick={() => handleEdit(customer.id)}
+      onClick={() => handleEdit(customer)}
+
+      
     >
       Edit
     </button>
 
-    <button
+    {/* <button
       className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
       onClick={() => handleDelete(customer.id)}
     >
       Delete
-    </button>
+    </button> */}
 
   </div>
 </td>
