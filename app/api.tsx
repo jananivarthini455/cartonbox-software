@@ -20,12 +20,12 @@ export const createOrder = async (data: any) => {
   
 
   try {
-    const response = await API.post("https://margin-herring-commence.ngrok-free.dev/api/orders", data,
-       {
-      headers: {
-        "ngrok-skip-browser-warning": "true",
-      },
-    }
+    const response = await API.post("/api/orders", data,
+    //    {
+    //   headers: {
+    //     "ngrok-skip-browser-warning": "true",
+    //   },
+    // }
   
   
 
@@ -49,13 +49,13 @@ export const createOrder = async (data: any) => {
 
 
 export const createCustomer = async (data: any) => {
-  const response = await axios.post("https://margin-herring-commence.ngrok-free.dev/api/customers", 
+  const response = await axios.post("/api/customers", 
      data,
-     {
-      headers: {
-        "ngrok-skip-browser-warning": "true",
-      },
-    },
+    //  {
+    //   headers: {
+    //     "ngrok-skip-browser-warning": "true",
+    //   },
+    // },
   
    );
   return response.data;
@@ -81,12 +81,12 @@ export const createCustomer = async (data: any) => {
 
 export const findGstin = async (gstin: string) => {
   const response = await axios.get(
-    `https://margin-herring-commence.ngrok-free.dev/api/customers/lookup?gstin=${gstin}`,
-    {
-      headers: {
-        "ngrok-skip-browser-warning": "true",
-      },
-    }
+    `/api/customers/lookup?gstin=${gstin}`,
+    // {
+    //   headers: {
+    //     "ngrok-skip-browser-warning": "true",
+    //   },
+    // }
   );
 
   return response.data;
@@ -94,12 +94,12 @@ export const findGstin = async (gstin: string) => {
 
 export const getCustomers = async () => {
   const response = await axios.get(
-    "https://margin-herring-commence.ngrok-free.dev/api/customers",
-     {
-      headers: {
-        "ngrok-skip-browser-warning": "true",
-      },
-    }
+    "/api/customers",
+    //  {
+    //   headers: {
+    //     "ngrok-skip-browser-warning": "true",
+    //   },
+    // }
   );
   
 
@@ -110,15 +110,15 @@ export const getJobCardReport = async () => {
   const today = new Date().toISOString().split("T")[0];
   const response = await axios.get(
     
-    "https://margin-herring-commence.ngrok-free.dev/api/orders",
+    "/api/orders",
      {
        params: {
      
         end_date: today,
       },
-      headers: {
-        "ngrok-skip-browser-warning": "true",
-      },
+      // headers: {
+      //   "ngrok-skip-browser-warning": "true",
+      // },
     }
   );
   
@@ -133,16 +133,16 @@ export const getJobCardReports = async (
   endDate: string
 ) => {
   const response = await axios.get(
-    "https://margin-herring-commence.ngrok-free.dev/api/orders",
+    "/api/orders",
     {
       params: {
         customer_id: customerId,
         start_date: startDate,
         end_date: endDate,
       },
-      headers: {
-        "ngrok-skip-browser-warning": "true",
-      },
+      // headers: {
+      //   "ngrok-skip-browser-warning": "true",
+      // },
     }
   );
 
@@ -194,16 +194,16 @@ export const updateCustomer = async (
   data: any
 ) => {
   const response = await API.put(
-    "https://margin-herring-commence.ngrok-free.dev/api/customers",
+    "/api/customers",
     {
       id,
       ...data,
     },
-    {
-      headers: {
-        "ngrok-skip-browser-warning": "true",
-      },
-    }
+    // {
+    //   headers: {
+    //     "ngrok-skip-browser-warning": "true",
+    //   },
+    // }
   );
 
   return response.data;
