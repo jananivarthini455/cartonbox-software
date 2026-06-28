@@ -1,7 +1,14 @@
 import axios from "axios";
 
+// const API = axios.create({
+//   baseURL: "https://rare-seals-wish.loca.lt",
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+// });
+
 const API = axios.create({
-  baseURL: "https://rare-seals-wish.loca.lt",
+  baseURL: "https://cartonbox-backend-1.onrender.com",
   headers: {
     "Content-Type": "application/json",
   },
@@ -49,7 +56,7 @@ export const createOrder = async (data: any) => {
 
 
 export const createCustomer = async (data: any) => {
-  const response = await axios.post("/api/customers", 
+  const response = await API.post("/api/customers", 
      data,
     //  {
     //   headers: {
@@ -80,7 +87,7 @@ export const createCustomer = async (data: any) => {
 
 
 export const findGstin = async (gstin: string) => {
-  const response = await axios.get(
+  const response = await API.get(
     `/api/customers/lookup?gstin=${gstin}`,
     // {
     //   headers: {
@@ -93,7 +100,7 @@ export const findGstin = async (gstin: string) => {
 };
 
 export const getCustomers = async () => {
-  const response = await axios.get(
+  const response = await API.get(
     "/api/customers",
     //  {
     //   headers: {
@@ -108,7 +115,7 @@ export const getCustomers = async () => {
 
 export const getJobCardReport = async () => {
   const today = new Date().toISOString().split("T")[0];
-  const response = await axios.get(
+  const response = await API.get(
     
     "/api/orders",
      {
@@ -132,7 +139,7 @@ export const getJobCardReports = async (
   startDate: string,
   endDate: string
 ) => {
-  const response = await axios.get(
+  const response = await API.get(
     "/api/orders",
     {
       params: {
