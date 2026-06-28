@@ -1,9 +1,5 @@
 export function calculateTubeCarton(
-  length: number,
-  breadth: number,
-  height: number,
-  measure: string
-) {
+length: number, breadth: number, height: number, measure: string, joint: string, ups: string) {
 
   let cutting = 0;
   let reel = 0;

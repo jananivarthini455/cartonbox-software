@@ -254,6 +254,7 @@ else if (boxType === "semi universal") {
     measure,
     joint,
     ups
+     
   );
 
   if (result.cutting > 0) {
