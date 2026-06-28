@@ -8,7 +8,7 @@ const API = axios.create({
 });
 
 // export const createOrder = async (data: any) => {
-//     console.log("API FUNCTION CALLED");
+//     co nsole.log("API FUNCTION CALLED");
 
 //   const response = await API.post("/api/orders", data);
 //   return response.data;

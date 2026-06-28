@@ -40,6 +40,7 @@ const [noOfBoard, setNoOfBoard] = useState("");
 const [sheet, setSheet] = useState("");
 const [papper, setPapper] = useState("");
 const [jobItems, setJobItems] = useState<any[]>([]);
+// const [boardSizes, setBoardSizes] = useState("");
 
 
 const [rate, setRate] = useState("");
@@ -106,6 +107,8 @@ const [reel, setReel] = useState(0);
 const [weightRemarks, setWeightRemarks] = useState(""); 
 const [customers, setCustomers] = useState([]);
 const [selectedCustomer, setSelectedCustomer] = useState("");
+const [boardCutting, setBoardCutting] = useState("");
+const [boardReel, setBoardReel] = useState("");
 
 
 
@@ -525,7 +528,20 @@ if (
   setFlutter(String(total));
 
 
-}, [length, breadth, height, measure, joint, ups,boxType,quantity, ply]);
+    if (cuttingSize && reelSize) {
+    setBoardSize(
+      `${cuttingSize.replace(" inch", "")} x ${reelSize.replace(" inch", "")}`
+    );
+  }
+
+//   setBoardSize(
+//   `${cuttingSize.replace(" inch","")} x ${reelSize.replace(" inch","")}`
+// );
+  setBoardCutting(cuttingSize.replace(" inch", ""));
+  setBoardReel(reelSize.replace(" inch", ""));
+
+
+}, [length, breadth, height, measure, joint, ups,boxType,quantity, ply,cuttingSize, reelSize]);
 
 
 useEffect(() => {
@@ -562,8 +578,14 @@ useEffect(() => {
   const balanceGsm = Number(balance);
   const bottomGsm = Number(bottom);
 
-  const cuttingNum = Number(cuttingSize.replace(/[^0-9.]/g, ""));
-  const reelNum = Number(reelSize.replace(/[^0-9.]/g, ""));
+  // const cuttingNum = Number(cuttingSize.replace(/[^0-9.]/g, ""));
+  // const reelNum = Number(reelSize.replace(/[^0-9.]/g, ""));
+  // const [cuttingNum, reelNum] = boardSize
+  // .split("x")
+  // .map((v) => Number(v.trim()));
+
+  const cuttingNum = Number(boardCutting);
+const reelNum = Number(boardReel);
 
   if (
     !cuttingNum ||
@@ -703,7 +725,10 @@ Bottom GSM ${bottomGsm} = ${finalBottomWt.toFixed(3)} bottom weight`
   );
 }
 
-}, [top, balance, bottom, cuttingSize, reelSize]);
+console.log(boardCutting, boardReel);
+
+}, [top, balance, bottom,boardCutting, boardReel, cuttingSize,
+  reelSize]);
 
 
 
@@ -1495,13 +1520,27 @@ console.log("typeof isAddEnabled =", typeof isAddEnabled);
               type="text"
               className="w-full border-2 border-gray-400 p-3 rounded-lg text-black placeholder-gray-500 bg-white"
               placeholder="Enter board size"
-             onChange={(e) => setCuttingSize(e.target.value)}
+            //  onChange={(e) => setCuttingSize(e.target.value)}
+            //  onChange={(e) => setBoardSize(e.target.value)}
+             onChange={(e) => {
+                        const value = e.target.value;
 
-                value={
-                        cuttingSize && reelSize
-                        ? `${cuttingSize.replace(" inch", "")} x ${reelSize.replace(" inch", "")}`
-                        : ""
-                    }
+                        // const parts = value.split("x");
+                        const parts = value.split(/x|X|×/);
+
+                        if (parts.length === 2) {
+                          setBoardCutting(parts[0].trim());
+                          setBoardReel(parts[1].trim());
+                        }
+                    }}
+
+                // value={
+                //         cuttingSize && reelSize
+                //         ? `${cuttingSize.replace(" inch", "")} x ${reelSize.replace(" inch", "")}`
+                //         : ""
+                //     }
+
+                    value={`${boardCutting} x ${boardReel}`}
 
                     required
               
