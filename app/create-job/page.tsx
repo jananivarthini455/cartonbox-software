@@ -1132,8 +1132,8 @@ console.log("typeof isAddEnabled =", typeof isAddEnabled);
 }));
 
   return (
+    <div className="min-h-screen bg-gray-100 p-3 md:p-6">
 
-    <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-6xl mx-auto bg-white shadow-xl rounded-xl p-8">
       
 
@@ -1801,6 +1801,9 @@ console.log("typeof isAddEnabled =", typeof isAddEnabled);
               rows={4}
               // className="w-full border-2 border-gray-400 p-3 rounded-lg text-black placeholder-gray-500 bg-white"
               className="w-[500px] border-2 border-gray-400 p-3 rounded-lg text-black placeholder-gray-500 bg-white"
+                // className="w-full max-w-[500px] border-2 border-gray-400 p-3 rounded-lg text-black placeholder-gray-500 bg-white"
+
+              
 
               placeholder="Enter remarks"
               value={weightRemarks}
