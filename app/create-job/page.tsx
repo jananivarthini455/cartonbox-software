@@ -740,6 +740,14 @@ console.log(boardCutting, boardReel);
 
 const handlePrint = () => {
 
+  console.log({
+  orderNo,
+  poNumber,
+  customerName,
+  deliveryPlace,
+  deliveryDate,
+});
+
 
 
     if (jobItems.length === 0) {
@@ -747,7 +755,11 @@ const handlePrint = () => {
   return;
 }
 
+console.log("generatePDF called");
+
 //   const doc = new jsPDF();
+
+console.log("generatePDF called");
 
   const doc = new jsPDF({
   orientation: "landscape",
@@ -766,6 +778,7 @@ doc.setFontSize(18);
 
 doc.setFont("helvetica", "bold"); // 👈 add this
 doc.setFontSize(14);
+
 
 doc.text(
   ` Order No: ${orderNo}     Order Date: ${new Date().toLocaleDateString("en-IN")}     Sri Venkateshwara Packaging & Co          PO Number: ${poNumber}`,
@@ -789,6 +802,12 @@ doc.setFontSize(11);
 // doc.text("VENKATESHWARA PACKAGING INDUSTRIES", pageWidth / 2, 14, {
 //   align: "center",
 // });
+
+console.log("PO Number:", poNumber);
+console.log("Customer Name:", customerName);
+console.log("Delivery Place:", deliveryPlace);
+console.log("Formatted Date:", formattedDate);
+
 
 doc.text(
   ` Customer Name: ${customerName}     Delivery Place: ${deliveryPlace}     Delivery Date: ${formattedDate}`,
@@ -1106,6 +1125,11 @@ console.log({
   noOfBoard: !!noOfBoard,
   sheet: !!sheet,
   papper: !!papper,
+  customerName,
+  poNumber,
+  deliveryDate,
+  deliveryPlace
+
 });
 
 console.log("isAddEnabled", isAddEnabled);
@@ -1155,9 +1179,11 @@ console.log("typeof isAddEnabled =", typeof isAddEnabled);
     value={customerOptions.find(
       (option) => option.value === selectedCustomer
     )}
-    onChange={(selectedOption) =>
-      setSelectedCustomer(selectedOption?.value || "")
-    }
+    onChange={(selectedOption) =>{
+      setSelectedCustomer(selectedOption?.value || "");
+      setCustomerName(selectedOption?.label || "");
+
+    }}
 
       styles={{
     control: (provided) => ({
@@ -2236,7 +2262,7 @@ console.log("typeof isAddEnabled =", typeof isAddEnabled);
 
     // clear all fields except order no & date
 
-    setCustomerName("");
+     setCustomerName("");
     setPoNumber("");
 
     setLength("");
