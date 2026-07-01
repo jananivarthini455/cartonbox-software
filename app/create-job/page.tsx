@@ -109,7 +109,12 @@ const [customers, setCustomers] = useState([]);
 const [selectedCustomer, setSelectedCustomer] = useState("");
 const [boardCutting, setBoardCutting] = useState("");
 const [boardReel, setBoardReel] = useState("");
-
+const [printHeader, setPrintHeader] = useState({
+  customerNamePrint: "",
+  poNumberPrint: "",
+  deliveryPlacePrint: "",
+  deliveryDatePrint: "",
+});
 
 
 
@@ -739,14 +744,9 @@ console.log(boardCutting, boardReel);
 
 
 const handlePrint = () => {
+  console.log(printHeader);
 
-  console.log({
-  orderNo,
-  poNumber,
-  customerName,
-  deliveryPlace,
-  deliveryDate,
-});
+  
 
 
 
@@ -781,7 +781,7 @@ doc.setFontSize(14);
 
 
 doc.text(
-  ` Order No: ${orderNo}     Order Date: ${new Date().toLocaleDateString("en-IN")}     Sri Venkateshwara Packaging & Co          PO Number: ${poNumber}`,
+  ` Order No: ${orderNo}     Order Date: ${new Date().toLocaleDateString("en-IN")}     Sri Venkateshwara Packaging & Co          PO Number: ${printHeader.poNumberPrint}`,
   14,
   14,
 );
@@ -809,12 +809,17 @@ console.log("Delivery Place:", deliveryPlace);
 console.log("Formatted Date:", formattedDate);
 
 
-doc.text(
-  ` Customer Name: ${customerName}     Delivery Place: ${deliveryPlace}     Delivery Date: ${formattedDate}`,
-  14,
-  21  // 👈 just below the line
-);
+// doc.text(
+//   ` Customer Name: ${customerName}     Delivery Place: ${deliveryPlace}     Delivery Date: ${formattedDate}`,
+//   14,
+//   21  // 👈 just below the line
+// );
 
+doc.text(
+  ` Customer Name: ${printHeader.customerNamePrint}     Delivery Place: ${printHeader.deliveryPlacePrint}     Delivery Date: ${formattedDate}`,
+  14,
+  21
+);
 
 
 
@@ -1005,11 +1010,11 @@ autoTable(doc, {
 });
 const weightY = (doc as any).lastAutoTable.finalY + 6;
 
-doc.text(
-  weightRemarks.replace(/\n/g, "   "),
-  20,
-  weightY
-);
+// doc.text(
+//   weightRemarks.replace(/\n/g, "   "),
+//   20,
+//   weightY
+// );
 
 
 
@@ -1144,9 +1149,15 @@ console.log("typeof isAddEnabled =", typeof isAddEnabled);
 // const formattedDate = new Date(deliveryDate)
 //   .toLocaleDateString("en-GB");
 
-  const formattedDate = new Date(deliveryDate)
-  .toLocaleDateString("en-GB")
-  .replace(/\//g, "-");
+  // const formattedDate = new Date(deliveryDate)
+  // .toLocaleDateString("en-GB")
+  // .replace(/\//g, "-");
+
+  const formattedDate = printHeader.deliveryDatePrint
+  ? new Date(printHeader.deliveryDatePrint)
+      .toLocaleDateString("en-GB")
+      .replace(/\//g, "-")
+  : "";
 
 
 
@@ -2536,10 +2547,18 @@ console.log("BEFORE API");
          {
     try {
         console.log("SAVE CLICKED");
+        console.log({
+          "checking the payload":
+  poNumber,
+  customerName,
+  deliveryPlace,
+  deliveryDate,
+  selectedCustomer,
+});
         const payload = {
   order_id: orderNo,
   total_amount: 5000,
-  customer_id: 1,
+  customer_id: selectedCustomer,
 
   items: jobItems.map((item) => ({
     l: Number(item.length),
@@ -2586,8 +2605,18 @@ console.log("BEFORE API");
 
       //   remarks,
       // });
-        await createOrder(payload);
-        console.log("payload",payload);
+        // await createOrder(payload);
+        // console.log("payload",payload);
+
+
+        // console.log("Payload:", payload);
+
+        // await createOrder(payload);
+
+
+        console.log("Payload:", JSON.stringify(payload, null, 2));
+
+await createOrder(payload);
 
 
       console.log("AFTER API");
@@ -2618,6 +2647,12 @@ console.log("BEFORE API");
     localStorage.setItem("currentOrderNo", nextOrderNo);
 
     setOrderNo(nextOrderNo);
+    setPrintHeader({
+  customerNamePrint: customerName,
+  poNumberPrint: poNumber,
+  deliveryPlacePrint: deliveryPlace,
+  deliveryDatePrint: deliveryDate,
+});
 
     // clear form fields
 setLength("");

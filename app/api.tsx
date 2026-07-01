@@ -42,11 +42,15 @@ export const createOrder = async (data: any) => {
     console.log(response.data);
 
     return response.data;
-  } catch (error) {
-    console.log("API ERROR");
-    console.error(error);
+  } catch (error: any) {
+     console.log("API ERROR");
 
-    throw error;
+  console.log("Status:", error.response?.status);
+  console.log("Backend Response:", error.response?.data);
+
+  console.error(error);
+
+  throw error;
   }
 
    
