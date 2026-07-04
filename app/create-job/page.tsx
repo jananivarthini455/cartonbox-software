@@ -671,7 +671,7 @@ else if (topGsm === bottomGsm && topGsm !== balanceGsm) {
 
   const total = topWt + bottomWt;
 
-  setWeightRemarks(
+setWeightRemarks(
 `Top + Bottom GSM ${topGsm} = ${total.toFixed(3)} weight
 Balance GSM ${balanceGsm} = ${balanceWt.toFixed(3)} weight`
   );
@@ -1844,7 +1844,7 @@ console.log("typeof isAddEnabled =", typeof isAddEnabled);
 
               placeholder="Enter remarks"
               value={weightRemarks}
-              onChange={(e) =>  setRemarks(e.target.value)}
+              onChange={(e) =>  setWeightRemarks(e.target.value)}
             />
           </div>
 
