@@ -1,11 +1,12 @@
 export function calculateSemiUniversal(
   length: number,
+  breadth : number,
   height: number,
-   breadth : number,
+
   measure: string
  
 ) {
-
+// console.log("this is inside the semiuniversal file breadth,height",breadth,height);
   let cutting = 0;
   let reel = 0;
 
@@ -13,9 +14,9 @@ export function calculateSemiUniversal(
   if (measure === "cm") {
 
     cutting =
-      (length + (2 * height) + 11)
-      / 2.54;
-
+      (((length) + (2 * height) + 10)
+      / 2.54);
+ 
     reel =
       ((2 * breadth) + (2 * height) + 2.5)
       / 2.54;
@@ -26,7 +27,7 @@ export function calculateSemiUniversal(
   else if (measure === "inch") {
 
     cutting =
-      length + (2 * height) + 4.75;
+      length + (2 * height) + 4;
 
     reel =
       (2 * breadth) + (2 * height) + 1;

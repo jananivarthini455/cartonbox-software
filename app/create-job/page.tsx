@@ -209,7 +209,7 @@ if (boxType === "universal") {
 else if (boxType === "semi universal") {
    
 
-  const result = calculateUniversal(
+  const result = calculateSemiUniversal(
     Number(length),
     Number(breadth),
     Number(height),
