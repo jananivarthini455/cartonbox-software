@@ -3,7 +3,9 @@ export function calculateSemiUniversal(
   breadth : number,
   height: number,
 
-  measure: string
+  measure: string,
+  joint: string,
+  ups:string
  
 ) {
 // console.log("this is inside the semiuniversal file breadth,height",breadth,height);
